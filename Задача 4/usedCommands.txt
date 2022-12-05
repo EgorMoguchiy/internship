@@ -1,0 +1,89 @@
+sudo apt update
+sudo apt install nginx
+sudo cp "/etc/nginx/sites-available/default" "/etc/nginx/sites-available/default.bak"
+sudo rm "/etc/nginx/sites-available/default"
+sudo rm "/etc/nginx/sites-enabled/default"
+sudo touch "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net"
+sudo nano "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net"
+--------------------------------------------------------------------------
+server {
+     listen   80;
+
+     root /var/www/;
+
+     index index.php;
+ 
+     server_name i-08f0a1119b61cb599.ddns.net;
+ 
+     location / {
+             try_files $uri $uri/ /index.php$args;
+     }
+ 
+     location ~ \.php$ {
+             proxy_set_header X-Real-IP  $remote_addr;
+             proxy_set_header X-Forwarded-For $remote_addr;
+             proxy_set_header Host $host;
+             proxy_pass http://127.0.0.1:8080;
+     }
+ 
+     location ~ /\. {
+             deny all;
+     }
+}
+--------------------------------------------------------------------------
+sudo ln -s "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net" "/etc/nginx/sites-enabled/i-08f0a1119b61cb599.ddns.net"
+sudo systemctl restart nginx
+
+
+sudo apt install apache2 libapache2-mod-php7.4
+sudo nano /etc/apache2/ports.conf
+----------------------
+Listen 127.0.0.1:8080
+----------------------
+
+sudo touch /etc/apache2/sites-available/i-08f0a1119b61cb599-apache.conf
+sudo nano /etc/apache2/sites-available/i-08f0a1119b61cb599-apache.conf
+-----------------------------------------------------------------------
+<VirtualHost 127.0.0.1:8080>
+     DocumentRoot /var/www/html/
+     ServerName i-08f0a1119b61cb599.ddns.net
+     ErrorLog /var/log/apache2/i-08f0a1119b61cb599.ddns.net_error.log
+     CustomLog /var/log/apache2/i-08f0a1119b61cb599.ddns.net_access.log common
+     <Directory /var/www/html/>
+             Options FollowSymLinks
+             AllowOverride All
+             #Следующие 2 строки не будут работать в apache >= 2.4, 
+	     #необходимо использовать директиву Require all granted
+             #Order allow,deny
+             #Allow from all
+             Require all granted
+     </Directory>
+</VirtualHost>
+-----------------------------------------------------------------------
+
+a2ensite i-08f0a1119b61cb599-apache.conf && sudo service apache2 start
+echo "<?php phpinfo(); ?>" | sudo tee /var/www/html/info.php
+
+sudo apt install letsencrypt python3-certbot-nginx
+sudo certbot --nginx -d i-08f0a1119b61cb599.ddns.net -d i-08f0a1119b61cb599.ddns.net
+sudo systemctl restart nginx
+
+#Далее редактирую файлы
+sudo nano "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net"
+|---------------------------------------|
+|см. файл: i-08f0a1119b61cb599.ddns.net |
+|---------------------------------------|
+
+sudo nano "/var/www/html/index.nginx-debian.html"
+|----------------------------------|
+|см. файл: index.nginx-debian.html |
+|----------------------------------|
+
+#Закидываю файл с музыкой в /media/
+
+#Создаю страничку с контентом
+sudo touch "/var/www/html/content.html"
+sudo nano "/var/www/html/content.html"
+|-----------------------|
+|см. файл: content.html |
+|-----------------------|
