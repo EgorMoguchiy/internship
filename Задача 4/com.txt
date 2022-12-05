@@ -1,0 +1,201 @@
+sudo apt update
+sudo apt install nginx
+sudo cp "/etc/nginx/sites-available/default" "/etc/nginx/sites-available/default.bak"
+sudo rm "/etc/nginx/sites-available/default"
+sudo rm "/etc/nginx/sites-enabled/default"
+sudo touch "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net"
+sudo nano "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net"
+--------------------------------------------------------------------------
+server {
+     listen   80;
+
+     root /var/www/;
+
+     index index.php;
+ 
+     server_name i-08f0a1119b61cb599.ddns.net;
+ 
+     location / {
+             try_files $uri $uri/ /index.php$args;
+     }
+ 
+     location ~ \.php$ {
+             proxy_set_header X-Real-IP  $remote_addr;
+             proxy_set_header X-Forwarded-For $remote_addr;
+             proxy_set_header Host $host;
+             proxy_pass http://127.0.0.1:8080;
+     }
+ 
+     location ~ /\. {
+             deny all;
+     }
+}
+--------------------------------------------------------------------------
+sudo ln -s "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net" "/etc/nginx/sites-enabled/i-08f0a1119b61cb599.ddns.net"
+sudo systemctl restart nginx
+
+
+sudo apt install apache2 libapache2-mod-php7.4
+sudo nano /etc/apache2/ports.conf
+----------------------
+Listen 127.0.0.1:8080
+----------------------
+
+sudo touch /etc/apache2/sites-available/i-08f0a1119b61cb599-apache.conf
+sudo nano /etc/apache2/sites-available/i-08f0a1119b61cb599-apache.conf
+-----------------------------------------------------------------------
+<VirtualHost 127.0.0.1:8080>
+     DocumentRoot /var/www/html/
+     ServerName i-08f0a1119b61cb599.ddns.net
+     ErrorLog /var/log/apache2/i-08f0a1119b61cb599.ddns.net_error.log
+     CustomLog /var/log/apache2/i-08f0a1119b61cb599.ddns.net_access.log common
+     <Directory /var/www/html/>
+             Options FollowSymLinks
+             AllowOverride All
+             #Следующие 2 строки не будут работать в apache >= 2.4, 
+	     #необходимо использовать директиву Require all granted
+             #Order allow,deny
+             #Allow from all
+             Require all granted
+     </Directory>
+</VirtualHost>
+-----------------------------------------------------------------------
+
+a2ensite i-08f0a1119b61cb599-apache.conf && sudo service apache2 start
+echo "<?php phpinfo(); ?>" | sudo tee /var/www/html/info.php
+
+sudo apt install letsencrypt python3-certbot-nginx
+sudo certbot --nginx -d i-08f0a1119b61cb599.ddns.net -d i-08f0a1119b61cb599.ddns.net
+sudo systemctl restart nginx
+
+#Далее редактирую файлы
+sudo nano "/etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net"
+----------------------------------------------------------------------------------------------------------------------
+server {
+	listen 443 ssl;
+	
+	charset utf-8;
+	root /var/www/html;
+	index index.nginx-debian.html index.php;
+ 
+	server_name i-08f0a1119b61cb599.ddns.net;
+ 
+	location / {
+		try_files $uri $uri/ /index.nginx-debian.html$args;
+	}
+
+	location /content/ {
+		proxy_pass http://localhost:8081/content.html;
+	}
+		
+	location ~* \.mp3$ {
+		root /media; 
+		default_type application/octet-stream;
+		types {}
+		add_header Content-Disposition "attachment";
+	}
+	
+	location /info.php/ {
+		proxy_set_header X-Real-IP  $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header Host $host;
+		proxy_pass http://127.0.0.1:8080/index.php;
+	}
+	
+	location /secondserver {
+		proxy_pass https://mail.ru;
+	}		
+ 
+	location ~ /\. {
+		deny all;
+	}
+
+	ssl_certificate /etc/letsencrypt/live/i-08f0a1119b61cb599.ddns.net/fullchain.pem; # managed by Certbot
+	ssl_certificate_key /etc/letsencrypt/live/i-08f0a1119b61cb599.ddns.net/privkey.pem; # managed by Certbot
+	include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+	listen 80;
+	server_name i-08f0a1119b61cb599.ddns.net;
+	root /var/www/html;
+	return 301 https://i-08f0a1119b61cb599.ddns.net$request_uri;
+}
+
+server {
+	listen 8081;
+	root /var/www/html;
+	index content.html;
+}
+----------------------------------------------------------------------------------------------------------------------
+
+sudo nano "/var/www/html/index.nginx-debian.html"
+---------------------------------------------------------------------------------------
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+
+<p>
+Если вы хотите попасть на страницу с контентом 1, то нажмите
+<a href="https://i-08f0a1119b61cb599.ddns.net/content">сюда</a>
+</p>
+
+<p>
+Если вы хотите скачать файл с музыкой нажмите
+<a href="https://i-08f0a1119b61cb599.ddns.net/sound.mp3">сюда</a>
+</p>
+
+<p>
+Если нужен сервер, работающий на Apache+PHP нажмите
+<a href="https://i-08f0a1119b61cb599.ddns.net/info.php">сюда</a>
+</p>
+
+<p>
+Если вы хотите получить респонс с другого сервера жмите
+<a href="https://i-08f0a1119b61cb599.ddns.net/secondserver">сюда</a>
+</p>
+
+</body>
+</html>
+---------------------------------------------------------------------------------------
+
+#Закидываю файл с музыкой в /media/
+
+#Создаю страничку с контентом
+sudo touch "/var/www/html/content.html"
+sudo nano "/var/www/html/content.html"
+-----------------------------------------------------------
+<!DOCTYPE html>
+<html>
+<head>
+<title>КОнтент 1</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Контент 1</h1>
+
+<p>
+123ABC
+</p>
+
+</body>
+</html>
+-----------------------------------------------------------
