@@ -1,0 +1,84 @@
+#Создание двух страниц red и blue
+
+sudo mkdir /var/www/red
+sudo touch /var/www/red/red.html
+sudo nano /var/www/red/red.html
+---------------------------------
+<html>
+ <head>
+  <title>red</title>
+ </head>
+ <body bgcolor=red>
+ </body>
+</html>
+---------------------------------
+
+sudo mkdir /var/www/blue
+sudo touch /var/www/blue/blue.html
+sudo nano /var/www/blue/blue.html
+---------------------------------
+<html>
+ <head>
+  <title>blue</title>
+ </head>
+ <body bgcolor=blue>
+ </body>
+</html>
+---------------------------------
+
+sudo touch /etc/nginx/sites-available/redblue
+sudo ln -s /etc/nginx/sites-available/redblue /etc/nginx/sites-enabled/redblue
+sudo nano /etc/nginx/sites-available/redblue
+----------------------------------------------
+upstream backend {
+        server i-08f0a1119b61cb599.ddns.net:88;
+        server i-08f0a1119b61cb599.ddns.net:99;
+}
+
+server {
+        listen 88;
+        listen [::]:88;
+        server_name i-08f0a1119b61cb599.ddns.net;
+
+        root /var/www/red;
+        index index.html;
+
+        location / {
+                try_files $uri $uri/ /index.html;
+        }
+}
+
+server {
+        listen 99;
+        listen [::]:99;
+        server_name i-08f0a1119b61cb599.ddns.net;
+
+        root /var/www/blue;
+        index index.html;
+
+        location / {
+                try_files $uri $uri/ /index.html;
+        }
+}
+
+----------------------------------------------
+
+#Добавляю location в основной блок server
+sudo nano /etc/nginx/sites-available/i-08f0a1119b61cb599.ddns.net
+-----------------------------------
+location /redblue {
+	proxy_pass http://backend;
+} 
+-----------------------------------
+
+#Создание журналов для логов
+sudo touch /var/log/nginx/i-08f0a1119b61cb599.ddns.net-access.log
+sudo touch /var/log/nginx/i-08f0a1119b61cb599.ddns.net-error.log
+
+#Изменение формата логов и переопределение журнала логов
+sudo nano /etc/nginx/nginx.conf
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+log_format upstreamlog '[$time_local] $remote_addr - $server_name $host to: $upstream_addr: $request $status "$http_user_agent"';
+access_log /var/log/nginx/i-08f0a1119b61cb599.ddns.net-access.log upstreamlog;
+error_log /var/log/nginx/i-08f0a1119b61cb599.ddns.net-error.log;
+-----------------------------------------------------------------------------------------------------------------------------------------------------

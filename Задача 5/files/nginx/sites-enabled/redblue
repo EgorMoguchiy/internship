@@ -1,0 +1,30 @@
+upstream backend {
+        server i-08f0a1119b61cb599.ddns.net:88;
+        server i-08f0a1119b61cb599.ddns.net:99;
+}
+
+server {
+        listen 88;
+        listen [::]:88;
+        server_name i-08f0a1119b61cb599.ddns.net;
+
+        root /var/www/red;
+        index index.html;
+
+	location / {
+		try_files $uri $uri/ /index.html;
+	}
+}
+
+server {
+        listen 99;
+        listen [::]:99;
+        server_name i-08f0a1119b61cb599.ddns.net;
+
+        root /var/www/blue;
+        index index.html;
+
+	location / {
+		try_files $uri $uri/ /index.html;
+	}
+}

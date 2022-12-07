@@ -45,12 +45,12 @@ server {
 		alias /var/www/img/$1;
 		image_filter test;
 		image_filter rotate 180;
-	}	
-	
-	location ~ /\. {
-		deny all;
 	}
-	
+
+	location /redblue {
+		proxy_pass http://backend;
+	}
+
 	ssl_certificate /etc/letsencrypt/live/i-08f0a1119b61cb599.ddns.net/fullchain.pem; # managed by Certbot
 	ssl_certificate_key /etc/letsencrypt/live/i-08f0a1119b61cb599.ddns.net/privkey.pem; # managed by Certbot
 	include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
@@ -67,7 +67,6 @@ server {
 server {
 	listen 8081;
 	root /var/www/html;
-	index content.html;
 }
 
 server {
