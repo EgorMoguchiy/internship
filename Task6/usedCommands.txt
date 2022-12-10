@@ -5,3 +5,6 @@ sudo chmod 646 /var/www/html/cpuLoad.html
 
 sudo touch /etc/systemd/system/cpu.service
 sudo nano /etc/systemd/system/cpu.service
+sudo systemctl status cpu
+sudo systemctl start cpu
+sudo systemctl enable cpu
