@@ -1,0 +1,7 @@
+touch loadCPU.sh
+chmod ugo+x loadCPU.sh
+sudo touch /var/www/html/cpuLoad.html
+sudo chmod 646 /var/www/html/cpuLoad.html
+
+sudo touch /etc/systemd/system/cpu.service
+sudo nano /etc/systemd/system/cpu.service
