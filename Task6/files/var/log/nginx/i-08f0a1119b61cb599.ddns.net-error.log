@@ -1,0 +1,2 @@
+2022/12/12 12:47:00 [error] 586#586: *15 upstream timed out (110: Unknown error) while connecting to upstream, client: 46.53.182.25, server: i-08f0a1119b61cb599.ddns.net, request: "GET /redblue HTTP/1.1", upstream: "http://18.193.125.130:88/redblue", host: "i-08f0a1119b61cb599.ddns.net", referrer: "https://i-08f0a1119b61cb599.ddns.net/"
+2022/12/12 14:26:52 [crit] 4216#4216: *47 SSL_do_handshake() failed (SSL: error:0A00006C:SSL routines::bad key share) while SSL handshaking, client: 184.105.247.227, server: 0.0.0.0:443

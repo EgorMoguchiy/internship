@@ -1,0 +1,3 @@
+184.105.247.195 - - [12/Dec/2022:14:30:46 +0000] "GET /favicon.ico HTTP/1.1" 404 197 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+184.105.247.219 - - [12/Dec/2022:14:38:11 +0000] "GET /.git/config HTTP/1.1" 404 197 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.100"
+64.62.197.58 - - [12/Dec/2022:15:36:58 +0000] "CONNECT www.shadowserver.org:443 HTTP/1.1" 400 166 "-" "-"

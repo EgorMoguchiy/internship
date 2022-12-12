@@ -8,3 +8,14 @@ sudo nano /etc/systemd/system/cpu.service
 sudo systemctl status cpu
 sudo systemctl start cpu
 sudo systemctl enable cpu
+
+sudo touch /var/log/nginx/nginx.log /var/log/nginx/nginx-clear.log /var/log/nginx/nginx-500.log /var/log/nginx/nginx-400.log
+sudo chmod 646 /var/log/nginx/nginx.log /var/log/nginx/nginx-clear.log /var/log/nginx/nginx-500.log /var/log/nginx/nginx-400.log
+touch nginxLog.sh
+chmod ugo+x nginxLog.sh
+
+sudo touch /etc/systemd/system/nlog.service
+sudo nano /etc/systemd/system/nlog.service
+sudo systemctl status nlog
+sudo systemctl start nlog
+sudo systemctl enable nlog

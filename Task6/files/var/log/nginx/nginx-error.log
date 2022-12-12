@@ -1,0 +1,2 @@
+2022/12/12 15:06:04 [crit] 14431#14431: *34 SSL_do_handshake() failed (SSL: error:0A00006C:SSL routines::bad key share) while SSL handshaking, client: 192.241.209.116, server: 0.0.0.0:443
+2022/12/12 16:00:13 [crit] 14431#14431: *49 SSL_do_handshake() failed (SSL: error:0A00006C:SSL routines::bad key share) while SSL handshaking, client: 212.102.40.218, server: 0.0.0.0:443
