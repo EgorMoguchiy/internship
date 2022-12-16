@@ -1,0 +1,39 @@
+sudo apt update
+sudo apt install wireguard
+wg genkey | sudo tee /etc/wireguard/privatekey | wg pubkey | sudo tee /etc/wireguard/publickey
+sudo nano /etc/wireguard/wg0.conf
+------------------------------------------------------------------------------------------------------
+[Interface]
+PrivateKey = 0CSJAt9Du9s+9+WSnLnqA5gMCRJnqwlix1zlwALkQno=
+# Приватный ключ из файла /etc/wireguard/privatekey
+Address = 10.10.10.1/24
+#Адрес VPN-сервера в частной сети.
+ListenPort = 50505
+#Порт, который будет слушать VPN-сервер.
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+#Команды, которые будут выполнять при поднятии сервера
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+#Команды, которые будут выполнять при выключении сервера
+------------------------------------------------------------------------------------------------------
+sudo nano /etc/sysctl.conf
+#Раскоментить для того, чтобы прокидывался интернет трафик через VPN-сервер
+net.ipv4.ip_forward=1
+
+systemctl enable wg-quick@wg0.service
+systemctl start wg-quick@wg0.service
+systemctl status wg-quick@wg0.service
+
+#Cоздание пары ключей для подключения клиента
+wg genkey | sudo tee /etc/wireguard/privatekeyClient-001 | wg pubkey | sudo tee /etc/wireguard/publickeyClient-001
+
+sudo nano /etc/wireguard/wg0.conf
+#Добавляю снизу
+------------------------------------------------------------
+[Peer]
+PublicKey = 250FNEYswxhIkIZ/Tyox6c6UkYP3fMPzN7Xymks/jWQ=
+#Публичный ключ клиента /etc/wireguard/publickeyClient-001
+AllowedIPs = 10.0.0.2/32 
+#IP-адрес в частной сети, который будет присвоен клиенту.
+------------------------------------------------------------
+
+#Теперь остаётся создать конфиг пользователя и подключится 
