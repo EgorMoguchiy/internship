@@ -1,3 +1,0 @@
-sudo apt-get install postgresql-client
-	
-psql -U <USERNAME> -h <HOSTNAME> -d <DATABASE> -W
